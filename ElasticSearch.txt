@@ -1,0 +1,428 @@
+ElasticSearch
+
+Format :
+
+Category
+    Query
+        cURL
+
+
+Document API__________________________________________________________________________________________________________________________________________________
+
+This category of APIs are used for handling documents in Elasticsearch. Using these APIs, for example, you will create documents in an index, update them, move them to another index, or remove them.
+The APIs detailed below are for handling single documents, but you can also make use of certain multi-document APIs for performing bulk actions (e.g. multi get).
+
+
+index – Add (or update) a document	
+
+    PUT /<<indexname>>
+
+        curl -XPUT 
+        'localhost:9200/twitter/my_index/my_type/1?pretty' 
+        -H 'Content-Type: application/json' -d'
+        {
+        "field : "value",
+        ...
+        }'
+
+
+get – Retrieve a specific existing document	
+
+    GET /<<indexname>>
+
+        curl -XGET
+        'localhost:9200/my_index/
+        my_type/0?pretty'
+
+
+delete – Delete a document	
+
+    DELETE /<<indexname>>
+
+        curl -XDELETE
+        'localhost:9200/my_index/
+        my_type/0?pretty'
+
+
+reindex – Copies a document from one index to another	
+
+    POST /_reindex
+
+        curl -XPOST
+        'localhost:9200/_reindex?pretty'
+        -H 'Content-Type:
+        application/json' -d'
+        {
+        "source": {
+        "index": "some_old_index"
+        },
+        "dest": {
+        "index": "some_new_index"
+        }
+        }'
+
+
+multi get API (mget) – This lets you pull documents from multiple indices, specifying as many docs as necessary per index	
+
+    GET /<<targetindex>>/_mget
+
+        curl -X GET 
+        "localhost:9200/_mget?pretty" 
+        -H 'Content-Type: application/json' -d'
+        {
+        "docs": [
+            {
+            "_index": "index1",
+            "_id": "1"
+            },
+            {
+            "_index": "index1",
+            "_id": "2"
+            }
+        ]
+        }
+
+
+bulk – This lets you perform multiple types of requests at once.	
+
+    POST /<<targetindex>>/_bulk
+
+        curl -X POST 
+        "localhost:9200/_bulk?pretty" 
+        -H 'Content-Type: application/json' -d'
+        { "index" : { "_index" : "test", "_id" : "1" } }
+        { "delete" : { "_index" : "test", "_id" : "2" } }
+        { "create" : { "_index" : "test", "_id" : "3" } }
+        { "field1" : "value1" }}
+
+
+delete by query	
+
+    POST /<<targetindex>>/_delete_by_query
+
+        curl -X POST 
+        "localhost:9200/index1/_delete_by_query?pretty" 
+        -H 'Content-Type: application/json' -d'
+        {
+        "query": {
+            "match": {
+            "user.id": "gedalyahreback"
+            }
+        }
+        }
+
+
+update by query – the parameter at the end tells the query to proceed in the event there is a conflict between versions of a document	
+
+    POST /<<targetindex>>/_update_by_query
+
+        curl -X POST 
+        "localhost:9200/myindex1/ 
+        _update_by_query?conflicts=proceed"
+
+
+
+
+Search API__________________________________________________________________________________________________________________________________________________
+
+As its name implies, these API calls can be used to query indexed data for specific information. Search APIs can be applied globally, across all available indices and types, or more specifically within an index. Responses will contain matches to the specific query.  The Search API sometimes depends on usage of the Mustache language, which is implemented within Elasticsearch as a scripting language.
+
+Search – Enter a search query and return hits matching the query	
+
+    GET /<<targetindex>>/_search
+    POST /<<targetindex>>/_search
+
+        curl -XGET
+        'localhost:9200/my_index/my_type/_count?q=field:
+        value&pretty'
+
+ 	 	 
+Validate – Validate a potentially heavy query without actually executing it	
+
+    GET /<<targetindex>>/_validate/<<query>>
+
+        curl -XGET
+        'localhost:9200/my_index/my_type/
+        _validate?q=field:value’
+
+
+Explain – Calculate a score for a query for getting feedback on whether a document matches the query or not	
+
+    GET /<<targetindex>>/_explain/<<id>>
+    POST /<<targetindex>>/_explain/<<id>>
+
+        curl -XGET
+        'localhost:9200/my_index/my_type/0/
+        _explain?q=message:search’
+
+
+Scroll	
+
+    GET /_search/scroll
+    POST /_search/scroll
+    DELETE /_search/scroll
+
+        curl -X GET 
+        "localhost:9200/_search/scroll?pretty" 
+        -H 'Content-Type: application/json' -d'
+        {}'
+
+Search Template	
+
+    GET /_search/template
+
+        curl -X GET 
+        "localhost:9200/_search/scroll?pretty" 
+        -H 'Content-Type: application/json' -d'
+        }'
+
+Storing a search template using the _scripts API	
+
+    POST _scripts/<<templateid>>
+    DELETE _scripts/<<templateid>>
+
+        curl -X POST 
+        "localhost:9200/_scripts/<<templateid>>?pretty" 
+        -H 'Content-Type: application/json' -d'
+        {
+        "script": {
+            "lang": "mustache",
+            "source": {
+            "query": "{{some_template}}"
+            }
+            }
+        }
+        }
+
+ 
+ 
+Indices API___________________________________________________________________________________________________________________________________________________
+
+This type of Elasticsearch API allows users to manage indices, mappings, and templates. For example, you can use this API to create or delete a new index, check if a specific index exists or not, and define new mapping for an index.
+Index Management
+
+Create a new Elasticsearch index	
+
+    PUT /<<indexname>>
+
+        curl -XPUT 
+        'localhost:9200/indexname?pretty' 
+        -H 'Content-Type: application/json' -d'
+        {
+        "settings" : {
+        "index" : {
+            ...
+            }
+        }
+        }'
+
+Delete an index	
+
+    DELETE /<<indexname>>
+
+        curl -XDELETE 
+        'localhost:9200/<<indexname>>?pretty'
+
+Open or Close an index	
+
+    POST /<<indexname>>/_open
+    POST /<<indexname>>/_close
+
+        curl -XPOST 
+        'localhost:9200/<<indexname>>/_open?pretty'
+
+        curl -XPOST 
+        'localhost:9200/<<indexname>>/_close?pretty'
+
+
+Shrink	
+
+    POST /<<indexname>>/_shrink/<<indexname>>
+    PUT /<<indexname>>/_shrink/<<indexname>>
+
+        curl -XPOST 
+        "localhost:9200/<<indexname>>/
+        _shrink/shrunken-indexname"
+
+
+Split	
+
+    POST /<<indexname>>/_split/<<indexname>>
+    PUT /<<indexname>>/_split/<<indexname>>
+
+        curl -XPOST 
+        "localhost:9200/indexname/_split/split-indexname" 
+        -H 'Content-Type: application/json' -d'
+        {
+        "settings": {
+        "index.number_of_shards": 4
+        }
+        }
+        '
+
+Clone	
+
+    POST /<<indexname>>/_clone/<<clonedindexname>> 
+    PUT /<<indexname>>/_clone/<<clonedindexname>>
+
+        curl -X POST 
+        "localhost:9200/indexname/_clone/clonedindex"
+
+
+Resolve	
+
+    GET /_resolve/index/<<indexname>>
+
+        curl -X GET 
+        "localhost:9200/_resolve/index/indexname"
+
+
+Rollover	
+
+    POST /<<indextoroll>>/_rollover/<<newindex>> 
+    POST /<<indextoroll>>/_rollover/
+
+        curl -X POST 
+        "localhost:9200/indextoroll/_rollover/newindex" 
+        -H 'Content-Type: application/json' -d'
+        {
+        "conditions": {
+        "max_age": "14d",
+        "max_docs": 5000,
+        "max_size": "15gb"
+        }
+        }'
+
+
+
+Mapping Management____________________________________________________________________________________________________________________________________________
+
+Add a new type to existing mapping	
+
+    PUT /<<indexname>>/_mapping
+    PUT /_mapping
+
+        curl -XPUT
+        'localhost:9200/indexname/_mapping/user?pretty' 
+        -H 'Content-Type: application/json' -d'
+        {
+        "properties": {
+            "name": {
+            "type": "text"
+            }
+        }
+        }'
+
+
+Retrieve mapping for a specific field	
+
+    GET /<<indexname>>/_mapping
+    GET /_mapping
+
+        curl -XGET
+        'localhost:9200/indexname/_mapping/
+        my_type/field/my_field?pretty'
+
+ 
+
+cat API_______________________________________________________________________________________________________________________________________________________
+
+I personally love the cat API and use it whenever possible. The idea is to return data in a more user-friendly format as opposed to the normal JSON response. You can read about the various string parameters you can add to the cat commands here.
+
+Cat Indices – Gives us access to info & metrics regarding our indices	
+
+    GET /_cat/indices	
+    
+        curl -XGET 'localhost:9200/_cat/indices? v&health=red&pretty'
+
+Cat Health – Overview of index health	
+
+    GET /_cat/health	
+    
+        curl -XGET 'localhost:9200/_cat/health? v&pretty'
+
+Cat Nodes – Info on Elasticsearch nodes
+#Tip: You can use headers to retrieve only relevant details on the nodes. Read here for more info.	
+    
+    GET /_cat/nodes	
+    
+        curl -XGET 'localhost:9200/_cat/nodes ?v&pretty'
+
+
+
+Ingest APIs___________________________________________________________________________________________________________________________________________________
+
+Manage Pipelines	
+
+    PUT /_ingest/pipeline/<<pipelineID>>
+    GET /_ingest/pipeline/<<pipelineID>>
+    GET /_ingest/pipeline
+    DELETE /_ingest/pipeline/<<pipelineID>>	
+
+        #versioning example
+        curl -X PUT
+        "localhost:9200/_ingest/pipeline/<>?pretty"
+        -H 'Content-Type: application/json' -d'
+        {
+        "description" : "my pipe does this",
+        "version" : 24,
+        "processors" : [
+        {
+        "set" : {
+        "field": "names",
+        "value": "bartholomew"
+        }
+        }
+        ]
+        }
+
+
+Simulate Pipelines	
+
+    POST /_ingest/pipeline/<pipeline>/_simulate
+    GET /_ingest/pipeline/<pipeline>/_simulate
+    POST /_ingest/pipeline/_simulate
+    GET /_ingest/pipeline/_simulate	
+ 
+Cluster API___________________________________________________________________________________________________________________________________________________
+
+These are cluster-specific API calls that allow you to manage and monitor your Elasticsearch cluster. Most of the APIs allow you to define which Elasticsearch node to call using either the internal node ID, its name or its address.
+
+Cluster Health	
+
+    GET _cluster/health/<<target>>	
+
+        cURL -XGET 'localhost:9200/_cluster/health?pretty'
+
+
+Cluster State — Filter with parameters in the call URL.	
+
+    GET _cluster/state/<<target>>	
+        
+        cURL -XGET 'http://localhost:9200/_cluster/state' cluster
+
+
+Cluster Stats — Basic index metrics and node info	
+
+    GET _cluster/stats/<<target>>	
+    
+        cURL -XGET 'http://localhost:9200/_cluster/stats?my_node&pretty'
+
+
+_reroute – manual changes to shard allocation	
+
+    POST /_cluster/reroute	
+    
+        cURL -X POST
+        "localhost:9200/_cluster/reroute?pretty"
+        -H 'Content-Type: application/json' -d'
+
+
+Settings	
+
+    GET /_cluster/settings
+    PUT /_cluster/settings
+    Parameters: flat_settings, include_defaults, master_timeout, timeout	
+        
+        cURL -X PUT "localhost:9200/_cluster/settings?flat_settings=true&pretty" 
+        -H 'Content-Type: application/json' -d' 
