@@ -1,0 +1,12 @@
+
+
+Document API_______________________________________________________________________________________
+
+Person inserted --> Person{personId='46868055-6968-4166-b742-1af648669856', name='Barath'}
+
+Person from Database --> Person{personId='46868055-6968-4166-b742-1af648669856', name='Barath'}
+
+Person updated --> Person{personId='46868055-6968-4166-b742-1af648669856', name='Barath E'}
+
+Person deleted
+___________________________________________________________________________________________________
