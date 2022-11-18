@@ -1,0 +1,87 @@
+
+
+                                            ______________________________________
+
+                                                        Document API
+                                            ______________________________________
+
+
+
+
+Creating index and adding documents POST method:
+
+    curl -XPOST 'localhost:9200/userdata/user/1' 
+-H 'Content-Type: application/json' 
+-d'
+    {
+        "name": "Barath"
+    }'
+
+output:
+
+{"_index":"userdata","_type":"user","_id":"1","_version":1,"_shards":{"total":2,"successful":1,"failed":0},"created":true}
+
+
+-------------------------------------------------------------------------------------------------------------------------------------
+
+
+Getting data from the server GET method :
+
+    curl -XGET 'localhost:9200/userdata/user/1?pretty'
+
+output:
+
+{
+  "_index" : "userdata",
+  "_type" : "user",
+  "_id" : "1",
+  "_version" : 1,
+  "found" : true,
+  "_source" : {
+    "name" : "Barath"
+  }
+}
+
+-------------------------------------------------------------------------------------------------------------------------------------
+
+
+Updating data to the userdata index GET method :
+
+    curl -XPOST 'http://localhost:9200/userdata/user/1/_update' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "doc": {
+        "name": "Barath E"
+    }
+}'
+
+output:
+
+{"_index":"userdata","_type":"user","_id":"1","_version":4,"_shards":{"total":2,"successful":1,"failed":0}}
+
+
+-------------------------------------------------------------------------------------------------------------------------------------
+
+
+Deleting data from the userdata index DELETE method :
+
+    curl -XDELETE 'localhost:9200/userdata/user/1/'
+
+output:
+
+{
+"found": true,
+"_index": "userdata",
+"_type": "user",
+"_id": "1",
+"_version": 5,
+"_shards": {
+    "total": 2,
+    "successful": 1,
+    "failed": 0
+    }
+}
+
+
+-------------------------------------------------------------------------------------------------------------------------------------
+
