@@ -64,6 +64,11 @@ public class ElasticSearchTest {
         // Uses template query for search
         connectionDao.searchTemplateAPI();
 
+        // Range filter in search
+        connectionDao.searchFilterRange("salary",0,30000);
+
+        // Match query filter in search
+        connectionDao.searchFilterQuery("name", "barath");
 
         // Aggregation methods
         connectionDao.aggregationAPI();

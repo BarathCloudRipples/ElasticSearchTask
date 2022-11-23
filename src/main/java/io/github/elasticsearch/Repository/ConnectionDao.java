@@ -22,6 +22,7 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
 
@@ -393,6 +394,66 @@ public class ConnectionDao {
                 return false;
             }
             SearchResponse searchResponse = response.getResponse();
+            SearchHits searchHits = searchResponse.getHits();
+            for (SearchHit hit : searchHits) {
+                String sourceAsString = hit.getSourceAsString();
+                System.out.println(sourceAsString);
+            }
+
+        } 
+        catch (Exception e)
+        {
+            e.getLocalizedMessage();
+        }
+        return true;
+    }
+
+    public boolean searchFilterRange(String field, int start, int end)
+    {
+        SearchSourceBuilder builder = new SearchSourceBuilder()
+				  .postFilter(QueryBuilders.rangeQuery(field).from(start).to(end));
+
+				SearchRequest searchRequest = new SearchRequest();
+				searchRequest.searchType(SearchType.DFS_QUERY_THEN_FETCH);
+				searchRequest.source(builder);
+        
+        try 
+        {
+            SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
+            if(searchResponse == null)
+            {
+                return false;
+            }
+            SearchHits searchHits = searchResponse.getHits();
+            for (SearchHit hit : searchHits) {
+                String sourceAsString = hit.getSourceAsString();
+                System.out.println(sourceAsString);
+            }
+
+        } 
+        catch (Exception e)
+        {
+            e.getLocalizedMessage();
+        }
+        return true;
+    }
+
+    public boolean searchFilterQuery(String field, String value)
+    {
+        SearchSourceBuilder builder = new SearchSourceBuilder()
+				  .postFilter(QueryBuilders.matchQuery(field, value));
+
+				SearchRequest searchRequest = new SearchRequest();
+				searchRequest.searchType(SearchType.DFS_QUERY_THEN_FETCH);
+				searchRequest.source(builder);
+        
+        try 
+        {
+            SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
+            if(searchResponse == null)
+            {
+                return false;
+            }
             SearchHits searchHits = searchResponse.getHits();
             for (SearchHit hit : searchHits) {
                 String sourceAsString = hit.getSourceAsString();
